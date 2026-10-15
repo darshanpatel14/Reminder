@@ -193,9 +193,11 @@ public final class NotificationScheduler: NSObject, ObservableObject, UNUserNoti
         }
     }
     
-    /// Reschedules all enabled reminders
+    /// Reschedules all enabled reminders and clears any stale delivered notifications
     public func rescheduleAll(reminders: [Reminder]) {
         center.removeAllPendingNotificationRequests()
+        center.removeAllDeliveredNotifications()
+        UIApplication.shared.applicationIconBadgeNumber = 0
         for rem in reminders where rem.isEnabled {
             scheduleReminder(rem)
         }

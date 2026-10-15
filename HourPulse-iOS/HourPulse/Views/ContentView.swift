@@ -14,56 +14,72 @@ public struct ContentView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     
-                    // Active Ringing Alert Card (Direct Snooze / Stop)
+                    // Active Ringing Alert Card (Direct Large Snooze / Stop Buttons)
                     if soundManager.isPlaying {
-                        HStack(spacing: 12) {
-                            Image(systemName: "speaker.wave.3.fill")
-                                .font(.title3)
-                                .foregroundColor(.white)
-                                .padding(10)
-                                .background(Color.red)
-                                .clipShape(Circle())
-                            
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Reminder Ringing")
-                                    .font(.subheadline.bold())
+                        VStack(spacing: 14) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "bell.and.waves.left.and.right.fill")
+                                    .font(.title2)
                                     .foregroundColor(.white)
-                                Text("Continuous alert tone is active.")
-                                    .font(.caption2)
-                                    .foregroundColor(.white.opacity(0.85))
-                            }
-                            
-                            Spacer()
-                            
-                            Button(action: {
-                                soundManager.stopChime()
-                                scheduler.triggerTestNotification(title: "Snoozed", body: "Snoozed for 10 minutes", delay: 600)
-                            }) {
-                                Text("Snooze ⏱️")
-                                    .font(.caption.bold())
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 6)
+                                    .padding(10)
                                     .background(Color.white.opacity(0.2))
-                                    .foregroundColor(.white)
-                                    .clipShape(Capsule())
+                                    .clipShape(Circle())
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Alert Ringing Now")
+                                        .font(.headline.bold())
+                                        .foregroundColor(.white)
+                                    Text("Audio tone loops continuously until stopped.")
+                                        .font(.caption2)
+                                        .foregroundColor(.white.opacity(0.85))
+                                }
+                                Spacer()
                             }
                             
-                            Button(action: {
-                                soundManager.stopChime()
-                                scheduler.clearAllDeliveredNotifications()
-                            }) {
-                                Text("Stop ✅")
-                                    .font(.caption.bold())
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 6)
+                            HStack(spacing: 12) {
+                                Button(action: {
+                                    soundManager.stopChime()
+                                    scheduler.triggerTestNotification(title: "Snoozed", body: "Snoozed for 10 minutes", delay: 600)
+                                }) {
+                                    HStack {
+                                        Image(systemName: "clock.arrow.circlepath")
+                                        Text("Snooze 10m ⏱️")
+                                    }
+                                    .font(.subheadline.bold())
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                                    .background(Color.white.opacity(0.25))
+                                    .foregroundColor(.white)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                }
+                                
+                                Button(action: {
+                                    soundManager.stopChime()
+                                    scheduler.clearAllDeliveredNotifications()
+                                }) {
+                                    HStack {
+                                        Image(systemName: "stop.circle.fill")
+                                        Text("Stop / Done ✅")
+                                    }
+                                    .font(.subheadline.bold())
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
                                     .background(Color.white)
                                     .foregroundColor(.red)
-                                    .clipShape(Capsule())
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                }
                             }
                         }
-                        .padding(12)
-                        .background(Color.red.opacity(0.92))
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .padding(16)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.red.opacity(0.95), Color.orange.opacity(0.9)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .shadow(color: Color.red.opacity(0.35), radius: 8, y: 4)
                     }
                     
                     // Top Quiet Night Guardian Banner
@@ -219,7 +235,8 @@ public struct ContentView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
-                        scheduler.clearAllDeliveredNotifications()
+                        SoundManager.shared.stopChime()
+                        scheduler.rescheduleAll(reminders: reminders)
                     }) {
                         HStack(spacing: 3) {
                             Image(systemName: "bell.slash")
@@ -253,6 +270,7 @@ public struct ContentView: View {
             }
             .onAppear {
                 loadReminders()
+                scheduler.rescheduleAll(reminders: reminders)
                 scheduler.requestAuthorization()
             }
         }
