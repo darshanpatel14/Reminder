@@ -93,9 +93,8 @@ public final class NotificationScheduler: NSObject, ObservableObject, UNUserNoti
         if reminder.intervalMinutes == 1 {
             let content = UNMutableNotificationContent()
             content.title = "\(reminder.emoji) \(reminder.title)"
-            content.subtitle = "Pull down / hold for Snooze or Stop"
             content.body = reminder.notes.isEmpty 
-                ? "1-Minute Test Pulse. Chimes every minute even when app is closed."
+                ? "1-Minute Test Reminder"
                 : reminder.notes
             content.sound = sound
             content.badge = 1
@@ -109,6 +108,10 @@ public final class NotificationScheduler: NSObject, ObservableObject, UNUserNoti
                 "soundName": reminder.soundName,
                 "isTest1m": true
             ]
+            if #available(iOS 15.0, *) {
+                content.interruptionLevel = .timeSensitive
+                content.relevanceScore = 1.0
+            }
             
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 60, repeats: true)
             let request = UNNotificationRequest(
@@ -134,7 +137,6 @@ public final class NotificationScheduler: NSObject, ObservableObject, UNUserNoti
             
             let content = UNMutableNotificationContent()
             content.title = "\(reminder.emoji) \(reminder.title)"
-            content.subtitle = "Pull down / hold for Snooze or Stop"
             content.body = reminder.notes.isEmpty 
                 ? "Hourly reminder (\(formatDeviceTime(hour: hour, minute: minute)))."
                 : reminder.notes
@@ -149,6 +151,10 @@ public final class NotificationScheduler: NSObject, ObservableObject, UNUserNoti
                 "notes": reminder.notes,
                 "soundName": reminder.soundName
             ]
+            if #available(iOS 15.0, *) {
+                content.interruptionLevel = .timeSensitive
+                content.relevanceScore = 1.0
+            }
             
             if isDaily {
                 var dateComponents = DateComponents()
@@ -203,9 +209,9 @@ public final class NotificationScheduler: NSObject, ObservableObject, UNUserNoti
         
         let content = UNMutableNotificationContent()
         content.title = "\(emoji) \(title)"
-        content.subtitle = "Pull down / hold for Snooze or Stop"
         content.body = body
         content.sound = sound
+        content.badge = 1
         content.categoryIdentifier = Self.categoryIdentifier
         content.threadIdentifier = "hourpulse-test"
         content.userInfo = [
@@ -214,6 +220,10 @@ public final class NotificationScheduler: NSObject, ObservableObject, UNUserNoti
             "notes": body,
             "soundName": soundName
         ]
+        if #available(iOS 15.0, *) {
+            content.interruptionLevel = .timeSensitive
+            content.relevanceScore = 1.0
+        }
         
         // Remove previous test notifications so they don't pile up in Notification Centre
         center.removeDeliveredNotifications(withIdentifiers: ["hourpulse-single-test-chime"])
@@ -262,11 +272,17 @@ public final class NotificationScheduler: NSObject, ObservableObject, UNUserNoti
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
+        // Immediately stop continuous looping sound on any interaction
+        SoundManager.shared.stopChime()
+        
         let userInfo = response.notification.request.content.userInfo
         let title = userInfo["title"] as? String ?? "Reminder"
         let emoji = userInfo["emoji"] as? String ?? "🔔"
         let notes = userInfo["notes"] as? String ?? ""
         let soundName = userInfo["soundName"] as? String ?? "chime"
+        
+        // Remove delivered card
+        center.removeDeliveredNotifications(withIdentifiers: [response.notification.request.identifier])
         
         switch response.actionIdentifier {
         case Self.actionSnooze:
@@ -276,13 +292,17 @@ public final class NotificationScheduler: NSObject, ObservableObject, UNUserNoti
             
             let snoozeContent = UNMutableNotificationContent()
             snoozeContent.title = "\(emoji) Snooze: \(title)"
-            snoozeContent.subtitle = "Pull down / hold for Snooze or Stop"
             snoozeContent.body = notes.isEmpty ? "Snoozed reminder is due now." : notes
             let soundFile = soundFileName(for: soundName)
             snoozeContent.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: soundFile))
+            snoozeContent.badge = 1
             snoozeContent.categoryIdentifier = Self.categoryIdentifier
             snoozeContent.threadIdentifier = "hourpulse-reminders"
             snoozeContent.userInfo = userInfo
+            if #available(iOS 15.0, *) {
+                snoozeContent.interruptionLevel = .timeSensitive
+                snoozeContent.relevanceScore = 1.0
+            }
             
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: snoozeSeconds, repeats: false)
             let snoozeRequest = UNNotificationRequest(
@@ -299,7 +319,6 @@ public final class NotificationScheduler: NSObject, ObservableObject, UNUserNoti
         case Self.actionDone:
             // Stop / Done: clear badge and remove delivered card immediately
             UIApplication.shared.applicationIconBadgeNumber = 0
-            center.removeDeliveredNotifications(withIdentifiers: [response.notification.request.identifier])
             DispatchQueue.main.async {
                 SoundManager.shared.speakVoicePrompt("Reminder stopped")
             }

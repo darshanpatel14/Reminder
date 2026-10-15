@@ -173,7 +173,7 @@ public struct AddEditReminderView: View {
                     .pickerStyle(.menu)
                     
                     Button(action: {
-                        SoundManager.shared.playChime(named: soundName)
+                        SoundManager.shared.playPreview(named: soundName)
                     }) {
                         HStack {
                             Image(systemName: "speaker.wave.2.fill")

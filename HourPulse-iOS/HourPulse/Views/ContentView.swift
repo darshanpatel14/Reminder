@@ -2,6 +2,7 @@ import SwiftUI
 
 public struct ContentView: View {
     @StateObject private var scheduler = NotificationScheduler.shared
+    @StateObject private var soundManager = SoundManager.shared
     @State private var reminders: [Reminder] = []
     @State private var showingAddSheet = false
     @State private var selectedReminderToEdit: Reminder? = nil
@@ -12,6 +13,58 @@ public struct ContentView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
+                    
+                    // Active Ringing Alert Card (Direct Snooze / Stop)
+                    if soundManager.isPlaying {
+                        HStack(spacing: 12) {
+                            Image(systemName: "speaker.wave.3.fill")
+                                .font(.title3)
+                                .foregroundColor(.white)
+                                .padding(10)
+                                .background(Color.red)
+                                .clipShape(Circle())
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Reminder Ringing")
+                                    .font(.subheadline.bold())
+                                    .foregroundColor(.white)
+                                Text("Continuous alert tone is active.")
+                                    .font(.caption2)
+                                    .foregroundColor(.white.opacity(0.85))
+                            }
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                soundManager.stopChime()
+                                scheduler.triggerTestNotification(title: "Snoozed", body: "Snoozed for 10 minutes", delay: 600)
+                            }) {
+                                Text("Snooze ⏱️")
+                                    .font(.caption.bold())
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(Color.white.opacity(0.2))
+                                    .foregroundColor(.white)
+                                    .clipShape(Capsule())
+                            }
+                            
+                            Button(action: {
+                                soundManager.stopChime()
+                                scheduler.clearAllDeliveredNotifications()
+                            }) {
+                                Text("Stop ✅")
+                                    .font(.caption.bold())
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(Color.white)
+                                    .foregroundColor(.red)
+                                    .clipShape(Capsule())
+                            }
+                        }
+                        .padding(12)
+                        .background(Color.red.opacity(0.92))
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                    }
                     
                     // Top Quiet Night Guardian Banner
                     HStack(spacing: 14) {
@@ -130,7 +183,7 @@ public struct ContentView: View {
                                     SoundManager.shared.playChime(named: rem.soundName)
                                     scheduler.triggerTestNotification(
                                         title: rem.title,
-                                        body: rem.notes.isEmpty ? "Lock iPhone to test sound & Snooze/Stop on lockscreen!" : rem.notes,
+                                        body: rem.notes.isEmpty ? "Hourly reminder pulse." : rem.notes,
                                         emoji: rem.emoji,
                                         soundName: rem.soundName,
                                         delay: 3.0
