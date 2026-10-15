@@ -1,0 +1,73 @@
+name: Build Shareable iOS IPA
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    tags: [ "v*" ]
+  workflow_dispatch:
+
+jobs:
+  build-ipa:
+    name: Build & Package iOS IPA
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode Version
+        run: |
+          sudo xcode-select -s /Applications/Xcode_15.4.app || sudo xcode-select -s /Applications/Xcode.app
+          xcodebuild -version
+
+      - name: Build iOS Archive
+        run: |
+          mkdir -p build
+          xcodebuild archive \
+            -project HourPulse-iOS/HourPulse.xcodeproj \
+            -scheme HourPulse \
+            -sdk iphoneos \
+            -configuration Release \
+            -archivePath build/HourPulse.xcarchive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Package Compiled App into .IPA
+        run: |
+          mkdir -p build/Payload
+          cp -r build/HourPulse.xcarchive/Products/Applications/HourPulse.app build/Payload/
+          cd build
+          zip -qr HourPulse.ipa Payload
+          cd ..
+          echo "IPA Size:"
+          ls -lh build/HourPulse.ipa
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HourPulse-iOS-IPA
+          path: build/HourPulse.ipa
+          retention-days: 30
+
+      - name: Create GitHub Release with Shareable IPA
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/HourPulse.ipa
+          tag_name: ${{ github.ref_name || 'latest' }}
+          name: "HourPulse iOS Release"
+          body: |
+            ### 🔔 HourPulse iOS Release (Ready to Sideload)
+            
+            This is a genuine compiled ARM64 iOS `.ipa` built via GitHub Actions.
+            
+            #### How to Install on iPhone:
+            1. Download `HourPulse.ipa` below.
+            2. Open **[Sideloadly](https://sideloadly.io)** on your Mac or PC.
+            3. Connect your iPhone via USB, drag `HourPulse.ipa`, enter your Apple ID, and click **Start**.
+            4. On your iPhone: Go to **Settings > General > VPN & Device Management** and tap **Trust**.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

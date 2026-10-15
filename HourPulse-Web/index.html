@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+  <title>HourPulse — Sober Daily Hourly Reminders for iPhone</title>
+  <meta name="description" content="A sober, elegant hourly reminder app for iPhone with custom quiet-night windows, active days, and soothing gentle chimes.">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0a0d14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="HourPulse">
+  <link rel="apple-touch-icon" href="assets/icon.png">
+  <link rel="icon" type="image/png" href="assets/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="desktop-mode">
+
+  <!-- Desktop Outer Shell Container -->
+  <div id="desktop-wrapper" class="desktop-wrapper">
+    
+    <!-- Desktop Left Info / Control Panel -->
+    <aside class="desktop-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="assets/icon.png" alt="HourPulse Logo" class="brand-icon">
+          <div>
+            <h1 class="brand-title">HourPulse</h1>
+            <p class="brand-subtitle">Daily Hourly Reminder</p>
+          </div>
+        </div>
+        <span class="badge-sober">Quiet-Night Protected</span>
+      </div>
+
+      <div class="sidebar-card">
+        <h3>Why HourPulse?</h3>
+        <p class="sidebar-text">
+          Unlike Apple’s default Reminders which repeat <strong>24/7 continuously even through the night</strong>, HourPulse lets you schedule hourly chimes <strong>strictly inside your waking window</strong> (e.g. 9 AM - 9 PM) on your chosen days.
+        </p>
+      </div>
+
+      <div class="sidebar-card device-switch-card">
+        <div class="card-row">
+          <span>View Mode</span>
+          <div class="segmented-control small" id="view-mode-toggle">
+            <button class="seg-btn active" data-view="frame">iPhone Pro</button>
+            <button class="seg-btn" data-view="fullscreen">Full Screen</button>
+          </div>
+        </div>
+        <div class="card-row" style="margin-top: 10px;">
+          <span>Sound Audio</span>
+          <button id="toggle-audio-btn" class="mini-btn">🔊 Unmute Audio</button>
+        </div>
+      </div>
+
+      <div class="sidebar-card ipa-guide-card">
+        <div class="ipa-header">
+          <span class="ipa-icon">📲</span>
+          <div>
+            <h4>Run Directly on iPhone</h4>
+            <p class="ipa-sub">No App Store required</p>
+          </div>
+        </div>
+        <ul class="ipa-steps">
+          <li><strong>Option 1 (PWA):</strong> Open Safari on your iPhone, visit <code id="wifi-ip-display">http://192.168.1.3:3000</code>, tap <em>Share &rarr; Add to Home Screen</em>.</li>
+          <li><strong>Option 2 (Sideload):</strong> Install <code class="code-tag">HourPulse.ipa</code> using Sideloadly or AltStore with your free Apple ID.</li>
+          <li><strong>Option 3 (Xcode):</strong> Open <code class="code-tag">HourPulse.xcodeproj</code> and click Run directly to your USB-connected iPhone.</li>
+        </ul>
+        <button id="view-install-guide-btn" class="btn-guide">View Sideload & Install Guide &rarr;</button>
+      </div>
+
+      <div class="sidebar-footer">
+        <span>Antigravity Engine &bull; Native Swift + Web Companion</span>
+      </div>
+    </aside>
+
+    <!-- Center Phone Device Frame (or Fullscreen when toggled) -->
+    <main class="device-viewport-container">
+      <div id="iphone-frame" class="iphone-frame">
+        <!-- Physical Buttons & Antenna Details -->
+        <div class="phone-speaker"></div>
+
+        <!-- Screen Area -->
+        <div class="screen-surface">
+          
+          <!-- iOS Status Bar & Dynamic Island -->
+          <header class="ios-status-bar">
+            <span class="status-time" id="status-clock">09:41</span>
+            
+            <!-- Dynamic Island -->
+            <div id="dynamic-island" class="dynamic-island" title="Tap to test active pulse">
+              <div class="island-collapsed">
+                <span class="island-dot"></span>
+                <span class="island-label" id="island-text">Next: 10:00 AM</span>
+                <span class="island-icon">🔔</span>
+              </div>
+              <div class="island-expanded">
+                <div class="island-pulse-ring"></div>
+                <div class="island-expanded-info">
+                  <span class="island-pill-tag">ACTIVE WINDOW</span>
+                  <strong id="island-expanded-title">Hydration &amp; Posture</strong>
+                  <small id="island-expanded-time">Chiming every 1h until 9:00 PM</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="status-icons">
+              <svg width="15" height="11" viewBox="0 0 15 11" fill="currentColor"><path d="M0 2.5C2.5 0 6 0 8.5 0C11 0 14.5 2.5 15 2.5L7.5 11L0 2.5Z"/></svg>
+              <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M1 10.5h2.5V8H1v2.5zm4 0h2.5V5.5H5v5zm4 0h2.5V3H9v7.5zm4 0h2.5V0H13v10.5z"/></svg>
+              <div class="ios-battery"><div class="battery-fill"></div></div>
+            </div>
+          </header>
+
+          <!-- Main App Content Container (Scrollable) -->
+          <div class="app-scroll-content" id="app-scroll-content">
+            
+            <!-- App Top Bar -->
+            <div class="app-nav-bar">
+              <div>
+                <span class="sub-greeting" id="live-greeting">TODAY'S SCHEDULE</span>
+                <h2 class="screen-title">HourPulse</h2>
+              </div>
+              <div class="nav-actions">
+                <button id="btn-request-perm" class="icon-circle-btn" title="Notification Permission">
+                  <span id="perm-indicator" class="perm-dot granted"></span>
+                  <span class="btn-icon">🔔</span>
+                </button>
+                <button id="btn-open-add" class="btn-primary-compact">
+                  <span>+</span> New
+                </button>
+              </div>
+            </div>
+
+            <!-- Quiet Hours Safe Badge Banner -->
+            <div class="quiet-hours-banner">
+              <div class="banner-icon-box">🌙</div>
+              <div class="banner-details">
+                <div class="banner-title-row">
+                  <strong>Night Sleep Protection</strong>
+                  <span class="badge-active">Safe</span>
+                </div>
+                <p>No reminders will ring during your sleep hours (9:00 PM — 8:30 AM).</p>
+              </div>
+            </div>
+
+            <!-- Today's 24-Hour Ring Schedule Visualizer -->
+            <section class="section-card timeline-card">
+              <div class="card-header-row">
+                <div class="header-with-tag">
+                  <h3>Today's Rings</h3>
+                  <span class="count-tag" id="rings-count-badge">12 Chimes</span>
+                </div>
+                <span class="next-countdown-label" id="master-countdown">Next chime in 19m</span>
+              </div>
+
+              <!-- Visual Clock Gauge / Hour Blocks -->
+              <div class="timeline-visual" id="timeline-hours-bar">
+                <!-- Injected via JS: 24 hourly ticks with quiet-window shade & ring markers -->
+              </div>
+              <div class="timeline-labels">
+                <span>12 AM</span>
+                <span>6 AM</span>
+                <span class="highlight-label">12 PM</span>
+                <span>6 PM</span>
+                <span>12 AM</span>
+              </div>
+            </section>
+
+            <!-- Active Reminders Filter & Section -->
+            <section class="reminders-section">
+              <div class="section-header-row">
+                <div class="segmented-control" id="reminders-filter">
+                  <button class="seg-btn active" data-filter="all">All Reminders</button>
+                  <button class="seg-btn" data-filter="active">Active Today</button>
+                  <button class="seg-btn" data-filter="templates">Templates</button>
+                </div>
+              </div>
+
+              <!-- List of Reminders -->
+              <div id="reminders-list" class="reminders-list">
+                <!-- Dynamically generated cards -->
+              </div>
+
+              <!-- Empty State -->
+              <div id="empty-state" class="empty-state hidden">
+                <div class="empty-icon">⏰</div>
+                <h3>No Hourly Reminders</h3>
+                <p>Create your first daytime hourly reminder or choose a quick template below.</p>
+                <button id="btn-empty-add" class="btn-primary-compact">Create Reminder</button>
+              </div>
+            </section>
+
+            <!-- Quick Template Inspiration -->
+            <section class="section-card templates-section" id="templates-section">
+              <div class="card-header-row">
+                <h3>Sober Curated Presets</h3>
+                <span class="hint-text">1-Tap Setup</span>
+              </div>
+              <div class="templates-grid" id="templates-grid">
+                <!-- Templates injected via JS -->
+              </div>
+            </section>
+
+            <!-- Bottom Spacer for iOS Home Bar -->
+            <div class="bottom-spacer"></div>
+
+          </div>
+
+          <!-- iOS Home Indicator Indicator Bar -->
+          <div class="ios-home-indicator">
+            <div class="home-bar"></div>
+          </div>
+
+          <!-- Notification Toast Simulation -->
+          <div id="notification-toast" class="notification-toast">
+            <div class="toast-app-icon">
+              <img src="assets/icon.png" alt="HourPulse">
+            </div>
+            <div class="toast-body">
+              <div class="toast-header">
+                <strong>HourPulse</strong>
+                <span class="toast-time">now</span>
+              </div>
+              <div class="toast-title" id="toast-title">💧 Hydration &amp; Posture</div>
+              <div class="toast-desc" id="toast-desc">Hourly reminder: Take a sip of water and roll your shoulders back.</div>
+            </div>
+            <button class="toast-close-btn" id="toast-dismiss">&times;</button>
+          </div>
+
+          <!-- Slide-Up Modal Sheet: Add / Edit Reminder -->
+          <div id="sheet-backdrop" class="sheet-backdrop hidden">
+            <div class="bottom-sheet" id="reminder-sheet">
+              <div class="sheet-grabber-bar">
+                <div class="grabber"></div>
+              </div>
+              
+              <div class="sheet-header">
+                <button id="btn-cancel-sheet" class="sheet-nav-btn">Cancel</button>
+                <h3 id="sheet-title">New Hourly Reminder</h3>
+                <button id="btn-save-sheet" class="sheet-nav-btn primary">Save</button>
+              </div>
+
+              <div class="sheet-scroll-body">
+                
+                <!-- Reminder Title & Category Icon -->
+                <div class="form-group">
+                  <label for="reminder-title-input">Reminder Name</label>
+                  <div class="title-input-row">
+                    <div class="emoji-selector" id="selected-emoji-btn" title="Choose icon">💧</div>
+                    <input type="text" id="reminder-title-input" class="text-input" placeholder="e.g. Drink Water &amp; Posture" maxlength="45">
+                  </div>
+                  <!-- Category Icon Picker -->
+                  <div class="emoji-palette" id="emoji-palette">
+                    <span class="emoji-chip selected" data-emoji="💧">💧 Water</span>
+                    <span class="emoji-chip" data-emoji="🧘">🧘 Posture</span>
+                    <span class="emoji-chip" data-emoji="👁️">👁️ Eye Rest</span>
+                    <span class="emoji-chip" data-emoji="🌿">🌿 Mindful</span>
+                    <span class="emoji-chip" data-emoji="🎯">🎯 Focus</span>
+                    <span class="emoji-chip" data-emoji="💊">💊 Health</span>
+                    <span class="emoji-chip" data-emoji="🚶">🚶 Walk</span>
+                    <span class="emoji-chip" data-emoji="☕">☕ Break</span>
+                  </div>
+                </div>
+
+                <!-- Frequency / Interval Picker -->
+                <div class="form-group">
+                  <div class="label-row">
+                    <label>Chime Frequency</label>
+                    <span class="label-accent" id="freq-summary-label">Every 1 Hour</span>
+                  </div>
+                  <div class="segmented-control freq-selector" id="freq-preset-selector">
+                    <button class="seg-btn" data-mins="15">15m</button>
+                    <button class="seg-btn" data-mins="30">30m</button>
+                    <button class="seg-btn" data-mins="45">45m</button>
+                    <button class="seg-btn active" data-mins="60">1 Hour</button>
+                    <button class="seg-btn" data-mins="120">2 Hours</button>
+                    <button class="seg-btn" data-mins="custom">Custom</button>
+                  </div>
+                  <div id="custom-mins-row" class="custom-mins-row hidden">
+                    <span>Repeat every</span>
+                    <input type="number" id="custom-mins-input" class="number-input" min="5" max="360" value="90">
+                    <span>minutes</span>
+                  </div>
+                </div>
+
+                <!-- Active Time Window (The Core Feature!) -->
+                <div class="form-group highlight-box">
+                  <div class="label-row">
+                    <label>Active Daily Window</label>
+                    <span class="label-sub-badge">Zero Night Alerts</span>
+                  </div>
+                  <p class="form-hint">Notifications will strictly chime between these times only:</p>
+                  
+                  <div class="time-range-inputs">
+                    <div class="time-field">
+                      <span class="time-field-label">Starts at</span>
+                      <input type="time" id="start-time-input" class="time-input" value="09:00">
+                    </div>
+                    <div class="time-arrow">&rarr;</div>
+                    <div class="time-field">
+                      <span class="time-field-label">Ends at</span>
+                      <input type="time" id="end-time-input" class="time-input" value="21:00">
+                    </div>
+                  </div>
+                  <div class="quick-window-chips">
+                    <button type="button" class="chip-btn" data-start="09:00" data-end="21:00">9 AM – 9 PM (Day)</button>
+                    <button type="button" class="chip-btn" data-start="09:00" data-end="18:00">9 AM – 6 PM (Work)</button>
+                    <button type="button" class="chip-btn" data-start="08:00" data-end="22:00">8 AM – 10 PM (Full Day)</button>
+                  </div>
+                </div>
+
+                <!-- Active Days -->
+                <div class="form-group">
+                  <div class="label-row">
+                    <label>Active Days</label>
+                    <span class="label-accent" id="days-summary-label">Every Day</span>
+                  </div>
+                  <div class="segmented-control small" id="days-preset-selector">
+                    <button class="seg-btn active" data-days="daily">Daily</button>
+                    <button class="seg-btn" data-days="weekdays">Weekdays</button>
+                    <button class="seg-btn" data-days="weekends">Weekends</button>
+                    <button class="seg-btn" data-days="custom">Custom</button>
+                  </div>
+                  <div id="custom-days-row" class="custom-days-row">
+                    <button type="button" class="day-bubble active" data-day="0">S</button>
+                    <button type="button" class="day-bubble active" data-day="1">M</button>
+                    <button type="button" class="day-bubble active" data-day="2">T</button>
+                    <button type="button" class="day-bubble active" data-day="3">W</button>
+                    <button type="button" class="day-bubble active" data-day="4">T</button>
+                    <button type="button" class="day-bubble active" data-day="5">F</button>
+                    <button type="button" class="day-bubble active" data-day="6">S</button>
+                  </div>
+                </div>
+
+                <!-- Sober Chime Tone -->
+                <div class="form-group">
+                  <div class="label-row">
+                    <label>Gentle Chime Sound</label>
+                    <button type="button" id="btn-preview-chime" class="mini-btn-link">Test Sound 🔊</button>
+                  </div>
+                  <div class="sound-selector-grid" id="sound-selector-grid">
+                    <div class="sound-card active" data-sound="zen_bell">
+                      <span class="sound-emoji">🔔</span>
+                      <span class="sound-name">Zen Bell</span>
+                    </div>
+                    <div class="sound-card" data-sound="singing_bowl">
+                      <span class="sound-emoji">🥣</span>
+                      <span class="sound-name">Singing Bowl</span>
+                    </div>
+                    <div class="sound-card" data-sound="bamboo">
+                      <span class="sound-emoji">🎋</span>
+                      <span class="sound-name">Soft Bamboo</span>
+                    </div>
+                    <div class="sound-card" data-sound="crystal">
+                      <span class="sound-emoji">✨</span>
+                      <span class="sound-name">Crystal</span>
+                    </div>
+                    <div class="sound-card" data-sound="raindrop">
+                      <span class="sound-emoji">💧</span>
+                      <span class="sound-name">Raindrop</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Live Computed Schedule Preview for this Reminder -->
+                <div class="form-group schedule-preview-box">
+                  <div class="preview-header">
+                    <span>Generated Daily Chimes:</span>
+                    <strong id="preview-chimes-count">13 Chimes</strong>
+                  </div>
+                  <div class="preview-chips-container" id="preview-chips-container">
+                    <!-- Injected via JS -->
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Install & Sideload Instructions Modal Sheet -->
+          <div id="guide-modal" class="sheet-backdrop hidden">
+            <div class="bottom-sheet guide-sheet">
+              <div class="sheet-grabber-bar"><div class="grabber"></div></div>
+              <div class="sheet-header">
+                <h3>Direct iPhone Installation</h3>
+                <button id="btn-close-guide" class="sheet-nav-btn primary">Done</button>
+              </div>
+              <div class="sheet-scroll-body guide-content">
+                <div class="guide-method">
+                  <div class="method-tag">Method 1 &bull; Instant (0 Tools)</div>
+                  <h4>Add to Home Screen (PWA)</h4>
+                  <p>1. Ensure your iPhone is on the same Wi-Fi network as this Mac.</p>
+                  <p>2. Open <strong>Safari</strong> on your iPhone and go to: <br><strong class="highlight-url" id="guide-wifi-url">http://192.168.1.3:3000</strong></p>
+                  <p>3. Tap the <strong>Share</strong> button (box with upward arrow) at the bottom of Safari.</p>
+                  <p>4. Scroll down and tap <strong>"Add to Home Screen"</strong>.</p>
+                  <p>5. Tap <strong>Add</strong> in the top right. HourPulse will appear as a standalone app on your iPhone!</p>
+                </div>
+
+                <div class="guide-method">
+                  <div class="method-tag">Method 2 &bull; Native .IPA Sideloading</div>
+                  <h4>Direct .IPA via Sideloadly / AltStore</h4>
+                  <p>1. The direct executable package is located at: <br><code class="code-tag">HourPulse.ipa</code></p>
+                  <p>2. Download free <strong>Sideloadly</strong> (sideloadly.io) on Mac.</p>
+                  <p>3. Plug your iPhone into your Mac via USB.</p>
+                  <p>4. Drag <code class="code-tag">HourPulse.ipa</code> into Sideloadly, enter your Apple ID, and click <strong>Start</strong>.</p>
+                  <p>5. On your iPhone, go to <em>Settings &rarr; General &rarr; VPN &amp; Device Management</em> and trust your Apple ID profile.</p>
+                </div>
+
+                <div class="guide-method">
+                  <div class="method-tag">Method 3 &bull; Xcode 1-Click Run</div>
+                  <h4>Xcode Direct USB Deploy</h4>
+                  <p>1. Open <code class="code-tag">HourPulse-iOS/HourPulse.xcodeproj</code> in Xcode.</p>
+                  <p>2. Select your connected iPhone from the run targets.</p>
+                  <p>3. Click the <strong>Play / Run</strong> button (Cmd+R).</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /.screen-surface -->
+      </div><!-- /#iphone-frame -->
+    </main>
+
+  </div><!-- /#desktop-wrapper -->
+
+  <script src="app.js"></script>
+</body>
+</html>
