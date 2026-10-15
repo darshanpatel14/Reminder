@@ -150,7 +150,29 @@ public struct AddEditReminderView: View {
                     .padding(.vertical, 4)
                 }
                 
-                // Section 5: Computed Schedule Preview
+                // Section 5: Chime Sound Selection with Preview
+                Section("Chime Sound") {
+                    Picker("Sound Tone", selection: $soundName) {
+                        Text("Zen Bell 🔔").tag("zen_bell")
+                        Text("Chime 🎶").tag("chime")
+                        Text("Singing Bowl 🥣").tag("singing_bowl")
+                        Text("Raindrop 💧").tag("water")
+                    }
+                    .pickerStyle(.menu)
+                    
+                    Button(action: {
+                        SoundManager.shared.playChime(named: soundName)
+                    }) {
+                        HStack {
+                            Image(systemName: "speaker.wave.2.fill")
+                            Text("Preview Sound Tone")
+                        }
+                        .font(.subheadline)
+                        .foregroundColor(.cyan)
+                    }
+                }
+                
+                // Section 6: Computed Schedule Preview
                 let previewTimes = computePreviewTimes()
                 Section("Generated Daily Schedule (\(previewTimes.count) Chimes)") {
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -216,14 +238,22 @@ public struct AddEditReminderView: View {
         var endMins = (eComp.hour ?? 21) * 60 + (eComp.minute ?? 0)
         if endMins <= startMins { endMins = 24 * 60 }
         
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        formatter.locale = Locale.current
+        
         var list: [String] = []
         var cur = startMins
         while cur <= endMins {
             let h = cur / 60
             let m = cur % 60
-            let period = h >= 12 ? "PM" : "AM"
-            let dh = h % 12 == 0 ? 12 : h % 12
-            list.append(String(format: "%d:%02d %@", dh, m, period))
+            if let date = cal.date(from: DateComponents(hour: h, minute: m)) {
+                list.append(formatter.string(from: date))
+            } else {
+                let period = h >= 12 ? "PM" : "AM"
+                let dh = h % 12 == 0 ? 12 : h % 12
+                list.append(String(format: "%d:%02d %@", dh, m, period))
+            }
             cur += max(5, intervalMinutes)
         }
         return list

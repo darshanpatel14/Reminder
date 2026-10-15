@@ -14,6 +14,11 @@
 		AA0100092C1B000100000001 /* ReminderCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA01000A2C1B000100000001 /* ReminderCardView.swift */; };
 		AA01000B2C1B000100000001 /* AddEditReminderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA01000C2C1B000100000001 /* AddEditReminderView.swift */; };
 		AA01000D2C1B000100000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA01000E2C1B000100000001 /* Assets.xcassets */; };
+		AA0100302C1B000100000001 /* SoundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0100312C1B000100000001 /* SoundManager.swift */; };
+		AA0100322C1B000100000001 /* chime.wav in Resources */ = {isa = PBXBuildFile; fileRef = AA0100332C1B000100000001 /* chime.wav */; };
+		AA0100342C1B000100000001 /* bell.wav in Resources */ = {isa = PBXBuildFile; fileRef = AA0100352C1B000100000001 /* bell.wav */; };
+		AA0100362C1B000100000001 /* water.wav in Resources */ = {isa = PBXBuildFile; fileRef = AA0100372C1B000100000001 /* water.wav */; };
+		AA0100382C1B000100000001 /* singing_bowl.wav in Resources */ = {isa = PBXBuildFile; fileRef = AA0100392C1B000100000001 /* singing_bowl.wav */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,11 +26,16 @@
 		AA0100022C1B000100000001 /* HourPulseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HourPulseApp.swift; sourceTree = "<group>"; };
 		AA0100042C1B000100000001 /* Reminder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reminder.swift; sourceTree = "<group>"; };
 		AA0100062C1B000100000001 /* NotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationScheduler.swift; sourceTree = "<group>"; };
+		AA0100312C1B000100000001 /* SoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundManager.swift; sourceTree = "<group>"; };
 		AA0100082C1B000100000001 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		AA01000A2C1B000100000001 /* ReminderCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderCardView.swift; sourceTree = "<group>"; };
 		AA01000C2C1B000100000001 /* AddEditReminderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEditReminderView.swift; sourceTree = "<group>"; };
 		AA01000E2C1B000100000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA0100102C1B000100000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AA0100332C1B000100000001 /* chime.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = chime.wav; sourceTree = "<group>"; };
+		AA0100352C1B000100000001 /* bell.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bell.wav; sourceTree = "<group>"; };
+		AA0100372C1B000100000001 /* water.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = water.wav; sourceTree = "<group>"; };
+		AA0100392C1B000100000001 /* singing_bowl.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = singing_bowl.wav; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +97,7 @@
 			isa = PBXGroup;
 			children = (
 				AA0100062C1B000100000001 /* NotificationScheduler.swift */,
+				AA0100312C1B000100000001 /* SoundManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -106,8 +117,20 @@
 			children = (
 				AA01000E2C1B000100000001 /* Assets.xcassets */,
 				AA0100102C1B000100000001 /* Info.plist */,
+				AA01003A2C1B000100000001 /* Sounds */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		AA01003A2C1B000100000001 /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				AA0100332C1B000100000001 /* chime.wav */,
+				AA0100352C1B000100000001 /* bell.wav */,
+				AA0100372C1B000100000001 /* water.wav */,
+				AA0100392C1B000100000001 /* singing_bowl.wav */,
+			);
+			path = Sounds;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -169,6 +192,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA01000D2C1B000100000001 /* Assets.xcassets in Resources */,
+				AA0100322C1B000100000001 /* chime.wav in Resources */,
+				AA0100342C1B000100000001 /* bell.wav in Resources */,
+				AA0100362C1B000100000001 /* water.wav in Resources */,
+				AA0100382C1B000100000001 /* singing_bowl.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -182,6 +209,7 @@
 				AA0100012C1B000100000001 /* HourPulseApp.swift in Sources */,
 				AA0100032C1B000100000001 /* Reminder.swift in Sources */,
 				AA0100052C1B000100000001 /* NotificationScheduler.swift in Sources */,
+				AA0100302C1B000100000001 /* SoundManager.swift in Sources */,
 				AA0100072C1B000100000001 /* ContentView.swift in Sources */,
 				AA0100092C1B000100000001 /* ReminderCardView.swift in Sources */,
 				AA01000B2C1B000100000001 /* AddEditReminderView.swift in Sources */,

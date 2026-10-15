@@ -26,3 +26,8 @@ yarn-debug.log*
 .pnpm-debug.log*
 .env
 .env.local
+
+# iOS Builds
+*.ipa
+HourPulse.ipa
+build/

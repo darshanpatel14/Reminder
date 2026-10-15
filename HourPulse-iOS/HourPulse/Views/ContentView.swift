@@ -126,7 +126,15 @@ public struct ContentView: View {
                                 onEdit: { selectedReminderToEdit = rem },
                                 onDelete: { deleteReminder(rem) },
                                 onToggle: { _ in updateReminder(rem) },
-                                onTest: { scheduler.triggerTestNotification(title: rem.title, body: "Hourly test chime!", emoji: rem.emoji) },
+                                onTest: {
+                                    SoundManager.shared.playChime(named: rem.soundName)
+                                    scheduler.triggerTestNotification(
+                                        title: rem.title,
+                                        body: rem.notes.isEmpty ? "Hourly reminder test. Tap to Snooze or Done." : rem.notes,
+                                        emoji: rem.emoji,
+                                        soundName: rem.soundName
+                                    )
+                                },
                                 onPauseToday: {
                                     rem.isPausedToday.toggle()
                                     updateReminder(rem)
@@ -155,6 +163,18 @@ public struct ContentView: View {
             .navigationTitle("HourPulse")
             .background(Color(.systemGroupedBackground))
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: {
+                        scheduler.clearAllDeliveredNotifications()
+                    }) {
+                        HStack(spacing: 3) {
+                            Image(systemName: "bell.slash")
+                            Text("Clear")
+                        }
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { showingAddSheet = true }) {
                         Image(systemName: "plus.circle.fill")

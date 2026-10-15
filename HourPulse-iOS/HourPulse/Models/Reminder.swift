@@ -95,6 +95,15 @@ public struct Reminder: Identifiable, Codable, Equatable {
     }
     
     private func formatTime(hour: Int, minute: Int) -> String {
+        var comp = DateComponents()
+        comp.hour = hour
+        comp.minute = minute
+        if let date = Calendar.current.date(from: comp) {
+            let df = DateFormatter()
+            df.timeStyle = .short
+            df.locale = Locale.current
+            return df.string(from: date)
+        }
         let period = hour >= 12 ? "PM" : "AM"
         let displayH = hour % 12 == 0 ? 12 : hour % 12
         let displayM = String(format: "%02d", minute)

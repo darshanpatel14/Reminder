@@ -23,6 +23,9 @@ cp "$WORKSPACE_DIR/HourPulse-Web/assets/icon.png" "$APP_DIR/AppIcon76x76@2x~ipad
 # Create PkgInfo
 echo -n "APPL????" > "$APP_DIR/PkgInfo"
 
+# Copy Sounds
+cp -r "$WORKSPACE_DIR/HourPulse-iOS/HourPulse/Resources/Sounds"/* "$APP_DIR/" 2>/dev/null || true
+
 # Compile Swift sources if SDK is available, or package bundle
 if xcrun --show-sdk-path --sdk iphoneos >/dev/null 2>&1; then
     echo "Compiling for iOS Device (arm64)..."
@@ -33,6 +36,7 @@ if xcrun --show-sdk-path --sdk iphoneos >/dev/null 2>&1; then
         "$WORKSPACE_DIR/HourPulse-iOS/HourPulse/App/HourPulseApp.swift" \
         "$WORKSPACE_DIR/HourPulse-iOS/HourPulse/Models/Reminder.swift" \
         "$WORKSPACE_DIR/HourPulse-iOS/HourPulse/Services/NotificationScheduler.swift" \
+        "$WORKSPACE_DIR/HourPulse-iOS/HourPulse/Services/SoundManager.swift" \
         "$WORKSPACE_DIR/HourPulse-iOS/HourPulse/Views/ContentView.swift" \
         "$WORKSPACE_DIR/HourPulse-iOS/HourPulse/Views/ReminderCardView.swift" \
         "$WORKSPACE_DIR/HourPulse-iOS/HourPulse/Views/AddEditReminderView.swift" \
