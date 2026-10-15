@@ -39,7 +39,14 @@ jobs:
       - name: Package Compiled App into .IPA
         run: |
           mkdir -p build/Payload
-          cp -r build/HourPulse.xcarchive/Products/Applications/HourPulse.app build/Payload/
+          APP_PATH=$(find build/HourPulse.xcarchive -name "*.app" | head -n 1)
+          echo "Found app at: $APP_PATH"
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: No .app found in archive! Listing contents:"
+            find build -maxdepth 4
+            exit 1
+          fi
+          cp -r "$APP_PATH" build/Payload/
           cd build
           zip -qr HourPulse.ipa Payload
           cd ..
