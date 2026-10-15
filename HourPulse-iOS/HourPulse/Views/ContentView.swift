@@ -163,7 +163,7 @@ public struct ContentView: View {
             .navigationTitle("HourPulse")
             .background(Color(.systemGroupedBackground))
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
                         scheduler.clearAllDeliveredNotifications()
                     }) {
@@ -175,7 +175,7 @@ public struct ContentView: View {
                         .foregroundColor(.secondary)
                     }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showingAddSheet = true }) {
                         Image(systemName: "plus.circle.fill")
                             .font(.title3)

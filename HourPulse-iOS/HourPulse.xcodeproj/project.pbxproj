@@ -32,10 +32,10 @@
 		AA01000C2C1B000100000001 /* AddEditReminderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEditReminderView.swift; sourceTree = "<group>"; };
 		AA01000E2C1B000100000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA0100102C1B000100000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		AA0100332C1B000100000001 /* chime.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = chime.wav; sourceTree = "<group>"; };
-		AA0100352C1B000100000001 /* bell.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bell.wav; sourceTree = "<group>"; };
-		AA0100372C1B000100000001 /* water.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = water.wav; sourceTree = "<group>"; };
-		AA0100392C1B000100000001 /* singing_bowl.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = singing_bowl.wav; sourceTree = "<group>"; };
+		AA0100332C1B000100000001 /* chime.wav */ = {isa = PBXFileReference; lastKnownFileType = file; path = chime.wav; sourceTree = "<group>"; };
+		AA0100352C1B000100000001 /* bell.wav */ = {isa = PBXFileReference; lastKnownFileType = file; path = bell.wav; sourceTree = "<group>"; };
+		AA0100372C1B000100000001 /* water.wav */ = {isa = PBXFileReference; lastKnownFileType = file; path = water.wav; sourceTree = "<group>"; };
+		AA0100392C1B000100000001 /* singing_bowl.wav */ = {isa = PBXFileReference; lastKnownFileType = file; path = singing_bowl.wav; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

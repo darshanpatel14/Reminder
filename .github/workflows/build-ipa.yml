@@ -28,12 +28,13 @@ jobs:
           xcodebuild archive \
             -project HourPulse-iOS/HourPulse.xcodeproj \
             -scheme HourPulse \
+            -destination "generic/platform=iOS" \
             -sdk iphoneos \
             -configuration Release \
             -archivePath build/HourPulse.xcarchive \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee xcodebuild.log || (echo "=== XCODEBUILD ERROR LOG ===" && grep -E "error:|fatal error:" xcodebuild.log && tail -n 50 xcodebuild.log && exit 1)
 
       - name: Package Compiled App into .IPA
         run: |
