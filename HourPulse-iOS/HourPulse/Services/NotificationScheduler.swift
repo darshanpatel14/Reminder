@@ -1,6 +1,7 @@
 import Foundation
 import UserNotifications
 import Combine
+import UIKit
 
 /// Manages UNUserNotificationCenter with Windowed Hourly Scheduling,
 /// Interactive Snooze / Done Actions, Custom Audible Chimes, and Spam Prevention

@@ -1,5 +1,6 @@
 import Foundation
 import AVFoundation
+import AudioToolbox
 import UIKit
 
 /// Manages In-App Audible Chimes, Spoken Voice Reminders, and Haptics
