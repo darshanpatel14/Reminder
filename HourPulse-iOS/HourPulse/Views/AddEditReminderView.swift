@@ -93,17 +93,35 @@ public struct AddEditReminderView: View {
                 // Section 4: Active Days
                 Section("Active Days") {
                     HStack {
-                        Button("Daily") { activeDays = [1, 2, 3, 4, 5, 6, 7] }
-                            .buttonStyle(activeDays.count == 7 ? .borderedProminent : .bordered)
-                            .font(.caption)
+                        if activeDays.count == 7 {
+                            Button("Daily") { activeDays = [1, 2, 3, 4, 5, 6, 7] }
+                                .buttonStyle(.borderedProminent)
+                                .font(.caption)
+                        } else {
+                            Button("Daily") { activeDays = [1, 2, 3, 4, 5, 6, 7] }
+                                .buttonStyle(.bordered)
+                                .font(.caption)
+                        }
                         
-                        Button("Weekdays") { activeDays = [2, 3, 4, 5, 6] }
-                            .buttonStyle(activeDays == [2, 3, 4, 5, 6] ? .borderedProminent : .bordered)
-                            .font(.caption)
+                        if activeDays == [2, 3, 4, 5, 6] {
+                            Button("Weekdays") { activeDays = [2, 3, 4, 5, 6] }
+                                .buttonStyle(.borderedProminent)
+                                .font(.caption)
+                        } else {
+                            Button("Weekdays") { activeDays = [2, 3, 4, 5, 6] }
+                                .buttonStyle(.bordered)
+                                .font(.caption)
+                        }
                         
-                        Button("Weekends") { activeDays = [1, 7] }
-                            .buttonStyle(activeDays == [1, 7] ? .borderedProminent : .bordered)
-                            .font(.caption)
+                        if activeDays == [1, 7] {
+                            Button("Weekends") { activeDays = [1, 7] }
+                                .buttonStyle(.borderedProminent)
+                                .font(.caption)
+                        } else {
+                            Button("Weekends") { activeDays = [1, 7] }
+                                .buttonStyle(.bordered)
+                                .font(.caption)
+                        }
                     }
                     
                     HStack(spacing: 8) {

@@ -46,7 +46,7 @@ public final class NotificationScheduler: NSObject, ObservableObject, UNUserNoti
         let sound = UNNotificationSound.default
         
         // Loop through each calculated time slot inside the daytime window
-        for (index, timeSlot) in times.enumerated() {
+        for timeSlot in times {
             guard let hour = timeSlot.hour, let minute = timeSlot.minute else { continue }
             
             // Loop through selected active days
