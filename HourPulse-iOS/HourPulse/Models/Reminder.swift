@@ -48,7 +48,9 @@ public struct Reminder: Identifiable, Codable, Equatable {
     
     /// Formatted frequency string (e.g., "Every 1 Hour" or "Every 45 mins")
     public var frequencyDescription: String {
-        if intervalMinutes >= 60 && intervalMinutes % 60 == 0 {
+        if intervalMinutes == 1 {
+            return "Every 1 min (Test)"
+        } else if intervalMinutes >= 60 && intervalMinutes % 60 == 0 {
             let hours = intervalMinutes / 60
             return hours == 1 ? "Every 1 Hour" : "Every \(hours) Hours"
         }
@@ -83,7 +85,7 @@ public struct Reminder: Identifiable, Codable, Equatable {
             endTotalMins = 24 * 60
         }
         
-        let interval = max(5, intervalMinutes)
+        let interval = max(1, intervalMinutes)
         var current = startTotalMins
         while current <= endTotalMins {
             let h = current / 60

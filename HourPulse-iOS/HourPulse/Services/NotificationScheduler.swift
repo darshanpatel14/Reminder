@@ -34,7 +34,7 @@ public final class NotificationScheduler: NSObject, ObservableObject, UNUserNoti
         
         let doneAction = UNNotificationAction(
             identifier: Self.actionDone,
-            title: "Done / Stop ✅",
+            title: "Stop / Done ✅",
             options: [.destructive]
         )
         
@@ -86,44 +86,90 @@ public final class NotificationScheduler: NSObject, ObservableObject, UNUserNoti
         
         guard reminder.isEnabled && !reminder.isPausedToday else { return }
         
-        let times = reminder.computedScheduleTimes()
         let soundFile = soundFileName(for: reminder.soundName)
         let sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: soundFile))
+        
+        // CASE 1: 1-Minute Local Testing Mode (Repeats every 60s in background, locked, closed)
+        if reminder.intervalMinutes == 1 {
+            let content = UNMutableNotificationContent()
+            content.title = "\(reminder.emoji) \(reminder.title)"
+            content.subtitle = "Pull down / hold for Snooze or Stop"
+            content.body = reminder.notes.isEmpty 
+                ? "1-Minute Test Pulse. Chimes every minute even when app is closed."
+                : reminder.notes
+            content.sound = sound
+            content.badge = 1
+            content.categoryIdentifier = Self.categoryIdentifier
+            content.threadIdentifier = "hourpulse-reminders"
+            content.userInfo = [
+                "reminderId": reminder.id.uuidString,
+                "title": reminder.title,
+                "emoji": reminder.emoji,
+                "notes": reminder.notes,
+                "soundName": reminder.soundName,
+                "isTest1m": true
+            ]
+            
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 60, repeats: true)
+            let request = UNNotificationRequest(
+                identifier: "hourpulse-\(reminder.id.uuidString)-test-1m",
+                content: content,
+                trigger: trigger
+            )
+            center.add(request) { error in
+                if let error = error {
+                    print("Error adding 1m request: \(error.localizedDescription)")
+                }
+            }
+            refreshPendingCount()
+            return
+        }
+        
+        // CASE 2: Windowed Hourly & Periodic Reminders
+        let times = reminder.computedScheduleTimes()
+        let isDaily = reminder.activeDays.count == 7
         
         for timeSlot in times {
             guard let hour = timeSlot.hour, let minute = timeSlot.minute else { continue }
             
-            for day in reminder.activeDays {
-                let content = UNMutableNotificationContent()
-                content.title = "\(reminder.emoji) \(reminder.title)"
-                content.body = reminder.notes.isEmpty 
-                    ? "Hourly reminder (\(formatDeviceTime(hour: hour, minute: minute)))."
-                    : reminder.notes
-                content.sound = sound
-                content.badge = 1
-                content.categoryIdentifier = Self.categoryIdentifier
-                content.threadIdentifier = "hourpulse-reminders"
-                content.userInfo = [
-                    "reminderId": reminder.id.uuidString,
-                    "title": reminder.title,
-                    "emoji": reminder.emoji,
-                    "notes": reminder.notes,
-                    "soundName": reminder.soundName
-                ]
-                
+            let content = UNMutableNotificationContent()
+            content.title = "\(reminder.emoji) \(reminder.title)"
+            content.subtitle = "Pull down / hold for Snooze or Stop"
+            content.body = reminder.notes.isEmpty 
+                ? "Hourly reminder (\(formatDeviceTime(hour: hour, minute: minute)))."
+                : reminder.notes
+            content.sound = sound
+            content.badge = 1
+            content.categoryIdentifier = Self.categoryIdentifier
+            content.threadIdentifier = "hourpulse-reminders"
+            content.userInfo = [
+                "reminderId": reminder.id.uuidString,
+                "title": reminder.title,
+                "emoji": reminder.emoji,
+                "notes": reminder.notes,
+                "soundName": reminder.soundName
+            ]
+            
+            if isDaily {
                 var dateComponents = DateComponents()
                 dateComponents.hour = hour
                 dateComponents.minute = minute
-                dateComponents.weekday = day
                 
                 let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-                let identifier = "hourpulse-\(reminder.id.uuidString)-d\(day)-h\(hour)m\(minute)"
-                
+                let identifier = "hourpulse-\(reminder.id.uuidString)-daily-h\(hour)m\(minute)"
                 let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-                center.add(request) { error in
-                    if let error = error {
-                        print("Error adding notification request: \(error.localizedDescription)")
-                    }
+                center.add(request)
+            } else {
+                for day in reminder.activeDays {
+                    var dateComponents = DateComponents()
+                    dateComponents.hour = hour
+                    dateComponents.minute = minute
+                    dateComponents.weekday = day
+                    
+                    let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+                    let identifier = "hourpulse-\(reminder.id.uuidString)-d\(day)-h\(hour)m\(minute)"
+                    let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+                    center.add(request)
                 }
             }
         }
@@ -151,12 +197,13 @@ public final class NotificationScheduler: NSObject, ObservableObject, UNUserNoti
     }
     
     /// Triggers a single test notification without stacking multiple duplicates
-    public func triggerTestNotification(title: String, body: String, emoji: String = "🔔", soundName: String = "chime") {
+    public func triggerTestNotification(title: String, body: String, emoji: String = "🔔", soundName: String = "chime", delay: TimeInterval = 3.0) {
         let soundFile = soundFileName(for: soundName)
         let sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: soundFile))
         
         let content = UNMutableNotificationContent()
         content.title = "\(emoji) \(title)"
+        content.subtitle = "Pull down / hold for Snooze or Stop"
         content.body = body
         content.sound = sound
         content.categoryIdentifier = Self.categoryIdentifier
@@ -176,7 +223,7 @@ public final class NotificationScheduler: NSObject, ObservableObject, UNUserNoti
         let request = UNNotificationRequest(
             identifier: "hourpulse-single-test-chime",
             content: content,
-            trigger: UNTimeIntervalNotificationTrigger(timeInterval: 1.0, repeats: false)
+            trigger: UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
         )
         center.add(request)
     }
@@ -223,9 +270,13 @@ public final class NotificationScheduler: NSObject, ObservableObject, UNUserNoti
         
         switch response.actionIdentifier {
         case Self.actionSnooze:
-            // Snooze for 10 minutes: schedule a one-off notification in 10 minutes
+            let isTest1m = userInfo["isTest1m"] as? Bool ?? false
+            let snoozeSeconds: TimeInterval = isTest1m ? 120 : 600 // 2m for test mode, 10m for hourly
+            let snoozeLabel = isTest1m ? "2 minutes" : "10 minutes"
+            
             let snoozeContent = UNMutableNotificationContent()
             snoozeContent.title = "\(emoji) Snooze: \(title)"
+            snoozeContent.subtitle = "Pull down / hold for Snooze or Stop"
             snoozeContent.body = notes.isEmpty ? "Snoozed reminder is due now." : notes
             let soundFile = soundFileName(for: soundName)
             snoozeContent.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: soundFile))
@@ -233,7 +284,7 @@ public final class NotificationScheduler: NSObject, ObservableObject, UNUserNoti
             snoozeContent.threadIdentifier = "hourpulse-reminders"
             snoozeContent.userInfo = userInfo
             
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 600, repeats: false) // 10 minutes
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: snoozeSeconds, repeats: false)
             let snoozeRequest = UNNotificationRequest(
                 identifier: "hourpulse-snooze-\(UUID().uuidString)",
                 content: snoozeContent,
@@ -242,18 +293,19 @@ public final class NotificationScheduler: NSObject, ObservableObject, UNUserNoti
             center.add(snoozeRequest)
             
             DispatchQueue.main.async {
-                SoundManager.shared.speakVoicePrompt("Snoozed for 10 minutes")
+                SoundManager.shared.speakVoicePrompt("Snoozed for \(snoozeLabel)")
             }
             
         case Self.actionDone:
-            // Done / Stop for this hour: clear badge and dismiss.
-            // Next scheduled hour will still chime normally on schedule!
+            // Stop / Done: clear badge and remove delivered card immediately
             UIApplication.shared.applicationIconBadgeNumber = 0
+            center.removeDeliveredNotifications(withIdentifiers: [response.notification.request.identifier])
             DispatchQueue.main.async {
-                SoundManager.shared.speakVoicePrompt("Reminder completed")
+                SoundManager.shared.speakVoicePrompt("Reminder stopped")
             }
             
         default:
+            UIApplication.shared.applicationIconBadgeNumber = 0
             break
         }
         

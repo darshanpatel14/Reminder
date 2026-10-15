@@ -130,9 +130,10 @@ public struct ContentView: View {
                                     SoundManager.shared.playChime(named: rem.soundName)
                                     scheduler.triggerTestNotification(
                                         title: rem.title,
-                                        body: rem.notes.isEmpty ? "Hourly reminder test. Tap to Snooze or Done." : rem.notes,
+                                        body: rem.notes.isEmpty ? "Lock iPhone to test sound & Snooze/Stop on lockscreen!" : rem.notes,
                                         emoji: rem.emoji,
-                                        soundName: rem.soundName
+                                        soundName: rem.soundName,
+                                        delay: 3.0
                                     )
                                 },
                                 onPauseToday: {
@@ -150,10 +151,10 @@ public struct ContentView: View {
                             .fontWeight(.bold)
                         
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                            presetButton(title: "1-Min Test", emoji: "⚡️", interval: 1, startH: 0, endH: 23)
                             presetButton(title: "Hydration", emoji: "💧", interval: 60, startH: 9, endH: 21)
                             presetButton(title: "Posture Stretch", emoji: "🧘", interval: 45, startH: 9, endH: 18)
                             presetButton(title: "Eye Rest", emoji: "👁️", interval: 30, startH: 10, endH: 19)
-                            presetButton(title: "Mindful Breath", emoji: "🌿", interval: 120, startH: 8, endH: 22)
                         }
                     }
                     .padding(.top, 10)

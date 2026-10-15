@@ -55,13 +55,25 @@ public struct AddEditReminderView: View {
                 // Section 2: Frequency
                 Section("Frequency & Interval") {
                     Picker("Interval", selection: $intervalMinutes) {
+                        Text("1m ⚡️").tag(1)
                         Text("15m").tag(15)
                         Text("30m").tag(30)
                         Text("45m").tag(45)
-                        Text("1 Hour").tag(60)
-                        Text("2 Hours").tag(120)
+                        Text("1 Hr").tag(60)
+                        Text("2 Hr").tag(120)
                     }
                     .pickerStyle(.segmented)
+                    
+                    if intervalMinutes == 1 {
+                        HStack(spacing: 6) {
+                            Image(systemName: "bolt.fill")
+                                .foregroundColor(.orange)
+                            Text("1-Minute Test Mode: Chimes every 60s even when iPhone is locked or app is closed. Perfect for testing!")
+                                .font(.caption)
+                                .foregroundColor(.orange)
+                        }
+                        .padding(.vertical, 2)
+                    }
                 }
                 
                 // Section 3: The Active Time Window (The Core Innovation)
@@ -244,7 +256,8 @@ public struct AddEditReminderView: View {
         
         var list: [String] = []
         var cur = startMins
-        while cur <= endMins {
+        let step = max(1, intervalMinutes)
+        while cur <= endMins && list.count < 30 {
             let h = cur / 60
             let m = cur % 60
             if let date = cal.date(from: DateComponents(hour: h, minute: m)) {
@@ -254,7 +267,10 @@ public struct AddEditReminderView: View {
                 let dh = h % 12 == 0 ? 12 : h % 12
                 list.append(String(format: "%d:%02d %@", dh, m, period))
             }
-            cur += max(5, intervalMinutes)
+            cur += step
+        }
+        if list.count == 30 && cur <= endMins {
+            list.append("...")
         }
         return list
     }
